@@ -17,6 +17,7 @@
     animation: chatGlow 2s infinite;
     scrollbar-width: thin;
     scrollbar-color: #537895 rgba(0, 0, 42, 0.9);
+    z-index: -1;
 }
 
 #chat-messages::-webkit-scrollbar {

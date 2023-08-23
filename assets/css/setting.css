@@ -67,6 +67,7 @@
     box-shadow: 0 0 10px var(--color-purple);
     backdrop-filter: blur(10px);
     max-width: 300px;
+    z-index: 1;
 }
 
 #setting-menu.menu-show {
