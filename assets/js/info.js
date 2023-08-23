@@ -1,7 +1,7 @@
 export default class Info {
 
     constructor() {
-        this.messageBox = document.getElementById('message-box');
+        this.messageContainer = document.getElementById('message-container');
         this.queue = [];
     }
 
@@ -12,10 +12,8 @@ export default class Info {
             type
         });
 
-        // 如果消息框没有显示,直接显示下一条
-        if (!this.messageBox.classList.contains('show')) {
-            this.showNextMessage();
-        }
+        // 显示下一条消息
+        this.showNextMessage();
     }
 
     showNextMessage() {
@@ -25,27 +23,30 @@ export default class Info {
                 type
             } = this.queue.shift();
 
+            // 创建新的消息框
+            let messageBox = document.createElement('div');
+            messageBox.classList.add('message-box');
+
             // 显示消息
-            this.messageBox.style.opacity = 1;
-            this.messageBox.style.transform = 'scale(1)';
-            this.messageBox.style.animation = 'zoomOpen 0.35s ease forwards';
+            messageBox.style.opacity = 1;
+            messageBox.style.transform = 'scale(1)';
+            messageBox.style.animation = 'zoomOpen 0.55s ease forwards';
 
             let msg = document.createElement('div');
             msg.classList.add('message-text');
             msg.classList.add('message', type);
             msg.innerHTML = message;
 
-            this.messageBox.innerText = ''
-            this.messageBox.appendChild(msg);
-            this.messageBox.classList.add('show');
+            messageBox.appendChild(msg);
+            this.messageContainer.appendChild(messageBox);
 
             setTimeout(() => {
-                this.messageBox.style.transform = 'scale(0)';
-                this.messageBox.style.animation = 'zoomClose 0.4s ease forwards';
+                messageBox.style.transform = 'scale(0)';
+                messageBox.style.animation = 'zoomClose 0.5s ease forwards';
 
-                this.messageBox.addEventListener('animationend', () => {
-                    this.messageBox.classList.remove('show');
-                    this.showNextMessage();
+                messageBox.addEventListener('animationend', () => {
+                    this.messageContainer.removeChild(messageBox);
+                    // 不再呼叫 showNextMessage
                 }, {
                     once: true
                 });
