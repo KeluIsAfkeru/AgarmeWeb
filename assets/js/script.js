@@ -1,6 +1,8 @@
 import ChatManager from './chatManager.js';
 import LeaderBoard from './leaderBoard.js';
 import KeyManager from './keyManager.js';
+import WebSocketClient from './webSocket.js';
+import Cell from './cell.js';
 import Info from './info.js';
 import {
     Draw
@@ -18,19 +20,19 @@ const serverIp = "http://127.0.0.1:5500";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
-        ip: '127.0.0.1:6666'
+        ip: 'ws://localhost:8080/Chat'
     },
     {
         name: '本地2',
-        ip: '127.0.0.1:6666'
+        ip: 'ws://localhost:6666/'
     },
     {
         name: '本地3',
-        ip: '127.0.0.1:6666'
+        ip: 'ws://localhost:443/'
     },
     {
         name: '本地4',
-        ip: '127.0.0.1:6666'
+        ip: 'ws://localhost:5555/'
     },
     {
         name: '本地5',
@@ -57,6 +59,8 @@ let app = new PIXI.Application({
     transparent: true,
 });
 let renderer = new Draw(app);
+renderer._isDrawStars = true;
+const client = new WebSocketClient(renderer);
 document.getElementById('pixi-container').appendChild(app.view);
 
 var canvas = document.createElement('canvas');
@@ -79,27 +83,37 @@ sprite.height = app.renderer.height;
 
 app.stage.addChild(sprite);
 
-//监听窗口大小改变
-setInterval(() => {
-    if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+
+    if (newWidth !== lastWidth || newHeight !== lastHeight) {
+        canvas.width = newWidth;
+        canvas.height = newHeight;
 
         gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         gradient.addColorStop(0, '#000428');
         gradient.addColorStop(1, '#000c1a');
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, newWidth, newHeight);
 
-        texture.update();
-        sprite.width = app.renderer.width;
-        sprite.height = app.renderer.height;
+        if (texture) {
+            texture.update();
+        }
 
-        app.renderer.resize(window.innerWidth, window.innerHeight);
+        if (sprite) {
+            sprite.width = app.renderer.width;
+            sprite.height = app.renderer.height;
+        }
+
+        app.renderer.resize(newWidth, newHeight);
+
+        lastWidth = newWidth;
+        lastHeight = newHeight;
     }
-}, 100);
+});
 
-renderer.renderStars();
+renderer.isDrawStars = true;
 
 /* 初始化服务器列表配置 */
 try {
@@ -263,6 +277,9 @@ function addServerListClickHandlers() {
 
             // 添加到当前点击的
             item.classList.add('selected');
+
+            tryClose();
+            tryConnect();
         });
     });
 }
@@ -659,17 +676,13 @@ function removeGlowFromAllButtons() {
 keybindButtons.forEach(button => {
     let previousText = '';
     button.addEventListener('click', () => {
-        // 记录下当前的按键
         previousText = button.textContent;
 
-        // 移除所有按钮的高亮
         removeGlowFromAllButtons();
 
-        // 高亮被点击的按钮
         button.classList.add('glow');
         button.textContent = '按下一个键...';
 
-        // 记录当前活动的按钮
         activeButton = button;
     });
 
@@ -716,28 +729,36 @@ window.addEventListener('keydown', (event) => {
 
 /* 自动重连服务器 */
 let isConnected = false; //是否连接成功，需要后期进行修改
+tryConnect();
 //address use currentServer.ip
 async function tryConnect() {
-    if (!isConnected) {
+    if (!client.isConnected) {
         try {
-            const connectionResult = await connect(currentServer.ip);
-            if (connectionResult) {
-                status.connectionSuccess(currentServer.name);
+            await client.connect(currentServer.ip);
+            if (client.isConnected) {
                 isConnected = true;
+                status.connectionSuccess(currentServer.name); // 连接成功后调用
             } else {
-                status.connectionError(currentServer.name);
                 isConnected = false;
+                status.connectionError(currentServer.name); // 连接失败后调用
             }
         } catch (error) {
-            status.connectionError(currentServer.name);
             isConnected = false;
+            status.connectionError(currentServer.name); // 连接失败后调用
         }
     }
 }
 
-//模拟函数
-async function connect(ip) {
-    return false;
+async function tryClose() {
+    if (client.isConnected) {
+        try {
+            await client.close();
+            status.showMessage("已和服务器断开连接！", "success");
+        } catch (error) {
+            status.showMessage("断开与服务器的连接失败！", "error");
+        }
+        isConnected = false;
+    }
 }
 
-setInterval(tryConnect, 8000);
+setInterval(tryConnect, 8500);
