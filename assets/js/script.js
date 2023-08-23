@@ -1,4 +1,4 @@
-import ChatManager from './ChatManager.js';
+import ChatManager from './chatManager.js';
 import LeaderBoard from './leaderBoard.js';
 import KeyManager from './keyManager.js';
 import Info from './info.js';
