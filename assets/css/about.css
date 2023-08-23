@@ -1,0 +1,115 @@
+:root {
+    --transition-time: 0.3s;
+    --color-white: #fff;
+    --color-light-blue: #88a2d2;
+    --color-dark-blue: #1a2a6c;
+    --color-purple: #ddb6f2;
+}
+
+.about-icon {
+    width: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: transform var(--transition-time) ease-in-out, filter var(--transition-time) ease-in-out;
+}
+
+.about-icon:hover {
+    transform: rotate(360deg) scale(1.2);
+    filter: drop-shadow(0 0 10px #5B5FEF);
+}
+
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0.6s, opacity 0.6s;
+    user-select: none;
+}
+
+.modal-content {
+    margin: auto;
+    padding: 25px;
+    border: 1px solid var(--color-dark-blue);
+    color: var(--color-dark-blue);
+    width: auto;
+    max-width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 20px 10px var(--color-dark-blue);
+    transition: box-shadow 0.3s ease;
+    scrollbar-width: thin;
+    scrollbar-color: #537895 rgba(0, 0, 42, 0.9);
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 10px;
+    background-color: rgba(0, 0, 42, 0.9);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background-color: #537895;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background-color: #88a2d2;
+}
+
+.close-btn {
+    color: var(--color-light-blue);
+    float: right;
+    margin-top: -2px;
+    margin-right: -12px;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.modal-content h2 {
+    color: #314280;
+    text-shadow: 0 0 10px rgb(88, 95, 108);
+    margin-bottom: 2px;
+}
+
+.modal-content p {
+    color: #5165ac;
+    text-shadow: 0 0 10px rgb(124, 141, 177);
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: var(--color-purple);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.show {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.section {
+    margin-bottom: 20px;
+    color: var(--color-white);
+}
+
+.spacing {
+    margin-right: 10px;
+}

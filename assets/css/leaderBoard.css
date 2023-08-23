@@ -1,0 +1,48 @@
+:root {
+    --main-color: #88a2d2;
+    --text-shadow: 0 0 10px rgba(136, 162, 210, 0.5);
+    --transition-time: 0.3s;
+}
+
+#leaderboard {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+    user-select: none;
+    padding: 10px;
+    box-sizing: border-box;
+    text-align: right;
+    font-family: 'Montserrat', sans-serif;
+    background-color: transparent;
+    color: var(--main-color);
+    /* 模糊化背景 */
+    /* backdrop-filter: blur(10px); */
+}
+
+#leaderboard .player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    transition: transform var(--transition-time);
+}
+
+#leaderboard .player .name {
+    text-shadow: var(--text-shadow);
+    /* 增加这行 */
+    flex-grow: 1;
+    text-align: right;
+    color: var(--main-color);
+    font-size: 12px;
+}
+
+#leaderboard .player .rank {
+    flex-shrink: 0;
+    width: 20px;
+    text-align: right;
+}
+
+#leaderboard .player:hover {
+    transform: scale(1.05);
+}

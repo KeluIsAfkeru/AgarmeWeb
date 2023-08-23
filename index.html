@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="user-scalable=no">
+    <meta charset="UTF-8">
+    <title>Agarme客户端</title>
+    <link rel="icon" href="assets/img/favicon.png">
+    <link rel="stylesheet" type="text/css" href="assets/css/basic.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/info.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/setting.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/about.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/leaderBoard.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/chatBox.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/key.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Roboto+Mono:400,700&display=swap"
+        rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="assets/js/script.js" type="module" defer></script>
+</head>
+
+<body>
+    <div id="starfield"></div>
+    <div id="message-box"></div>
+    <div id="overlay" class="overlay"></div>
+    <div id="skin-selector" style="display: none;"></div>
+    <div id="skin-container"></div>
+    <div class="modal-bg"></div>
+    <div id="panels-wrapper">
+        <div id="main-panel">
+            <h1>Agarme-Web
+                <img src="assets/img/tip.png" class="about-icon" id="about-btn">
+                <img src="assets/img/setting.png" id="setting-icon">
+                <img src="assets/img/keyboard.png" id="key-icon">
+            </h1>
+            <div class="input-group-wrapper">
+                <div class="skin-preview"></div>
+                <div class="input-groups">
+                    <div class="input-group">
+                        <label for="name">Name:</label>
+                        <input id="name" type="text" placeholder="在这里输入细胞名称">
+                    </div>
+                    <div class="input-group">
+                        <label for="skin">Skin:</label>
+                        <input id="skin" type="text" placeholder="在这填写皮肤图片的链接">
+                    </div>
+                </div>
+            </div>
+            <div class="button-wrapper">
+                <button id="start-button"> <img src="assets/img/play.png" alt="Play Icon"> 开始 </button>
+                <button id="watch-button"> <img src="assets/img/spectate.png" alt="Spectate Icon"> 观战 </button>
+                </button>
+            </div>
+        </div>
+        <div id="server-panel">
+            <h2 class="server-title">服务器列表</h2>
+            <div id="server-list">
+                <ul>
+                </ul>
+            </div>
+        </div>
+        <!-- 服务器面板右键菜单 -->
+        <div id="context-menu" class="context-menu">
+            <ul>
+                <li id="add-server">添加服务器</li>
+                <li id="edit-server">编辑服务器</li>
+                <li id="delete-server">删除服务器</li>
+            </ul>
+        </div>
+    </div>
+    <div id="chat-container">
+        <div id="chat-header">Chat</div>
+        <div id="chat-messages">
+        </div>
+        <input id="chat-input" type="text" placeholder="在这里输入要发送的消息...">
+    </div>
+    <div id="leaderboard">
+        <div class="leaderboard-players"></div>
+    </div>
+    <div id="setting-menu">
+
+        <img src="assets/img/close.svg" id="close-button">
+
+        <div id="setting-content">
+
+            <div class="setting-items">
+
+                <div class="setting-item-row">
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-names" checked>
+                        <label for="show-names">显示名称</label>
+                    </div>
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-mass" checked>
+                        <label for="show-mass">显示质量</label>
+                    </div>
+
+                </div>
+
+                <div class="setting-item-row">
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-borders" checked>
+                        <label for="show-borders">显示边界</label>
+                    </div>
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-grid" checked>
+                        <label for="show-grid">显示网格</label>
+                    </div>
+
+                </div>
+
+                <div class="setting-item-row">
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-skins" checked>
+                        <label for="show-skins">显示皮肤</label>
+                    </div>
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-food" checked>
+                        <label for="show-food">显示食物</label>
+                    </div>
+
+                </div>
+
+                <div class="setting-item-row">
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-lines" checked>
+                        <label for="show-lines">显示连线</label>
+                    </div>
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-minimap" checked>
+                        <label for="show-minimap">显小地图</label>
+                    </div>
+                </div>
+
+                <div class="setting-item-row">
+                    <div class="setting-item">
+                        <input type="checkbox" id="show-cellBorders" checked>
+                        <label for="show-cellBorders">显示细胞边框</label>
+                    </div>
+
+                    <div class="setting-item">
+                        <input type="checkbox" id="auto-zoom">
+                        <label for="auto-zoom">自动缩放</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="setting-item">
+                <input type="range" id="minimap-size" min="0" max="100" value="65">
+                <label for="minimap-size">小地图大小</label>
+            </div>
+
+            <div class="setting-item">
+                <input type="range" id="cell-transparency" min="0" max="225" value="195">
+                <label for="cell-transparency">细胞透明度</label>
+            </div>
+
+            <div class="setting-item">
+                <input type="range" id="motion-transform" min="0" max="100" value="13">
+                <label for="motion-transform">运动变换</label>
+            </div>
+
+            <div class="setting-item">
+                <input type="range" id="mass-transform" min="0" max="100" value="20">
+                <label for="mass-transform">质量变换</label>
+            </div>
+
+            <button id="save-btn">保存</button>
+
+        </div>
+
+    </div>
+    <div id="keybind-panel" class="hide">
+
+        <div class="keybind-item">
+            <label for="keybind-w">吐球</label>
+            <button id="keybind-w">W</button>
+        </div>
+
+        <div class="keybind-item">
+            <label for="keybind-space">分裂</label>
+            <button id="keybind-space">Space</button>
+        </div>
+
+        <div class="keybind-item">
+            <label for="keybind-doublesplit">双重分裂</label>
+            <button id="keybind-doublesplit">T</button>
+        </div>
+
+        <div class="keybind-item">
+            <label for="keybind-triplesplit">三重分裂</label>
+            <button id="keybind-triplesplit">D</button>
+        </div>
+
+        <div class="keybind-item">
+            <label for="keybind-splitlall">秒空</label>
+            <button id="keybind-splitlall">F</button>
+        </div>
+
+        <div class="keybind-item">
+            <label for="keybind-stop">停止运动</label>
+            <button id="keybind-stop">S</button>
+        </div>
+
+        <div class="keybind-item">
+            <label for="keybind-switch">玩家侍从切换</label>
+            <button id="keybind-switch">Tab</button>
+        </div>
+
+        <button id="save-keybinds">保存</button>
+
+    </div>
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="section">
+                <h2>默认操作[可在后期设置里更改]</h2>
+                <p>
+                    · Esc键: 开启/关闭主页面板 W键: 细胞吐球<br>
+                    · 空格键: 细胞分裂 T键: 双重分裂<br>
+                    · D键: 三重分裂 F键: 秒空<br>
+                    · Tab键: 切换控制 S键: 停止运动
+                </p>
+            </div>
+            <div class="section">
+                <h2>注意事项</h2>
+                <p>
+                    · 游戏仅供个人学习和娱乐使用，不用于商业目的,侵权私作者删改!<br>
+                    · 切勿向陌生人透露个人敏感信息，避免遭受不必要的骚扰、诈骗或身份盗窃。<br>
+                    · 尊重其他玩家，避免恶意言论或不良行为,造和谐良好游戏环境
+                    · 使用作弊软件、外挂或其他非法手段来获取不正当优势
+                </p>
+            </div>
+            <div class="section">
+                <h2>作者与支持</h2>
+                <p>
+                    · 作者:<br><br>
+                    Hungrykid/HK/Afkeru&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp QQ:451345424<br><br>
+                    · 支持:<br><br>
+                    类C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbspQQ:2894873155&nbsp;&nbsp;
+                    |&nbsp;&nbsp;&nbsp;清程&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbspQQ:2894873155&nbsp;&nbsp;
+                    |&nbsp;&nbsp;&nbsp;断指&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbspQQ:323988206&nbsp;&nbsp;
+                    |&nbsp;&nbsp;&nbsp;SJZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbspQQ:3244658766<br><br>
+                    零泽&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbspQQ:1841104577&nbsp;
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
