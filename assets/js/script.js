@@ -11,7 +11,7 @@ import {
 } from './settingsManager.js';
 
 const status = new Info();
-const serverIp = "127.0.0.1:5500";
+const serverIp = "http://127.0.0.1:5500";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
@@ -413,7 +413,7 @@ skinPreview.addEventListener('click', function (event) {
     if (skinContainer.style.transform === 'scale(1)') {
         skinContainer.style.transform = 'scale(0)';
     } else {
-        fetch(`http://${serverIp}/skins.json`)
+        fetch(`${serverIp}/skins.json`)
             .then(response => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.json();
@@ -423,7 +423,7 @@ skinPreview.addEventListener('click', function (event) {
 
                 skins.forEach(skin => {
                     const img = document.createElement('img');
-                    img.src = `http://${serverIp}/skins/${skin.name}.png`;
+                    img.src = `${serverIp}/skins/${skin.name}.png`;
                     skinContainer.appendChild(img);
 
                     img.addEventListener('click', function () {
