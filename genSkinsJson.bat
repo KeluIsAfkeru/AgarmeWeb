@@ -5,7 +5,7 @@ set "outputFile=skins.json"
 echo [ > %outputFile%
 
 set "firstItem=true"
-for %%F in (skins\*.png) do (
+for %%F in (skins-webp\*.webp) do (
     set "filename=%%~nF"
     if !firstItem! == true (
         echo   { "name": "!filename!" } >> %outputFile%

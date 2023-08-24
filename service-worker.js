@@ -1,4 +1,4 @@
-const CURRENT_CACHE = 'v1';
+const CURRENT_CACHE = 'v1.001';
 const resources = [
     '/',
     '/index.html',

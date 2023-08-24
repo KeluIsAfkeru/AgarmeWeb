@@ -12,40 +12,34 @@ export default class WebSocketClient {
             await new Promise((resolve, reject) => {
                 this.socket = new WebSocket(url);
                 this.socket.binaryType = 'arraybuffer';
-                this.socket.addEventListener('open', () => {
+
+                this.socket.addEventListener('open', this.onOpen = () => {
                     console.log('Connection open');
                     this.isConnected = true;
                     this.renderer.isDrawStars = false;
                     resolve();
                 });
 
-                this.socket.addEventListener('error', (event) => {
+                this.socket.addEventListener('error', this.onError = (event) => {
                     console.error('WebSocket error: ', event);
                     reject(new Error('WebSocket error'));
                 });
 
-                this.socket.addEventListener('message', (event) => {
+                this.socket.addEventListener('message', this.onMessage = (event) => {
                     // 获取原始的ArrayBuffer数据
                     var rawData = event.data;
 
                     // 使用MessagePack的decode函数进行反序列化
                     var decodedData = MessagePack.decode(rawData);
-
-                    // // 转换为对象
-                    // var circles = decodedData.map(ArrayToCell);
-
-                    // // 转换为对象
-                    // circles.forEach(circle => {
-                    //     console.log(`X: ${circle.X}, Y: ${circle.Y}, Radius: ${circle.Radius}`);
-                    // });
                 });
 
-                this.socket.addEventListener('close', (event) => {
-                    if(this.isConnected){
+                this.socket.addEventListener('close', this.onClose = (event) => {
+                    if (this.isConnected) {
                         this.renderer.isDrawStars = true;
                     }
                     console.log('Connection closed');
                     this.isConnected = false;
+                    this.cleanUp();
                     if (event.wasClean) {
                         resolve();
                     } else {
@@ -72,16 +66,8 @@ export default class WebSocketClient {
                 return;
             }
 
-            this.socket.addEventListener('close', (event) => {
-                console.log('Connection closed');
-                this.isConnected = false;
-                resolve();
-            });
-
-            this.socket.addEventListener('error', (event) => {
-                console.error('WebSocket error: ', event);
-                reject(new Error('WebSocket error'));
-            });
+            this.socket.addEventListener('close', this.onClose);
+            this.socket.addEventListener('error', this.onError);
 
             this.socket.close();
         });
@@ -105,7 +91,17 @@ export default class WebSocketClient {
                 return 'UNKNOWN';
         }
     }
+
+    cleanUp() {
+        if (this.socket) {
+            this.socket.removeEventListener('open', this.onOpen);
+            this.socket.removeEventListener('error', this.onError);
+            this.socket.removeEventListener('message', this.onMessage);
+            this.socket.removeEventListener('close', this.onClose);
+        }
+    }
 }
-function ArrayToCell(array){
+
+function ArrayToCell(array) {
     return new Cell(array[0], array[1], array[2]);
 }

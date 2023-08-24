@@ -33,63 +33,60 @@ let defaultServers = [{
     {
         name: '本地4',
         ip: 'ws://localhost:5555/'
-    },
-    {
-        name: '本地5',
-        ip: '127.0.0.1:6666'
-    },
-    {
-        name: '本地6',
-        ip: '127.0.0.1:6666'
-    },
-    {
-        name: '本地7',
-        ip: '127.0.0.1:6666'
     }
-    // ...更多服务器
 ];
-let servers;
-let lastWidth = window.innerWidth;
-let lastHeight = window.innerHeight;
+const appState = {
+    servers: null,
+    lastWidth: window.innerWidth,
+    lastHeight: window.innerHeight,
+};
 
 /* 初始化pixiJS */
-let app = new PIXI.Application({
+const app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
     transparent: true,
 });
-let renderer = new Draw(app);
+const renderer = new Draw(app);
 renderer._isDrawStars = true;
 const client = new WebSocketClient(renderer);
 document.getElementById('pixi-container').appendChild(app.view);
 
-var canvas = document.createElement('canvas');
+const canvas = document.createElement('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-var ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 
-var gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
 gradient.addColorStop(0, '#000428');
 gradient.addColorStop(1, '#000c1a');
 
 ctx.fillStyle = gradient;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-var texture = PIXI.Texture.from(canvas);
-var sprite = new PIXI.Sprite(texture);
+let texture = PIXI.Texture.from(canvas);
+let sprite = new PIXI.Sprite(texture);
 
 sprite.width = app.renderer.width;
 sprite.height = app.renderer.height;
 
 app.stage.addChild(sprite);
 
-window.addEventListener('resize', () => {
-    const newWidth = window.innerWidth;
-    const newHeight = window.innerHeight;
+const handleResize = () => {
+    requestAnimationFrame(() => {
+        const {
+            lastWidth,
+            lastHeight
+        } = appState;
+        const newWidth = window.innerWidth;
+        const newHeight = window.innerHeight;
 
-    if (newWidth !== lastWidth || newHeight !== lastHeight) {
+        if (newWidth === lastWidth && newHeight === lastHeight) return;
+
         canvas.width = newWidth;
         canvas.height = newHeight;
+
+        app.renderer.resize(newWidth, newHeight);
 
         gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         gradient.addColorStop(0, '#000428');
@@ -106,29 +103,33 @@ window.addEventListener('resize', () => {
             sprite.height = app.renderer.height;
         }
 
-        app.renderer.resize(newWidth, newHeight);
 
-        lastWidth = newWidth;
-        lastHeight = newHeight;
-    }
-});
+        appState.lastWidth = newWidth;
+        appState.lastHeight = newHeight;
+        console.log(window.innerWidth)
+        console.log(canvas.width)
+        console.log(texture.width)
+    });
+};
+
+window.addEventListener('resize', handleResize);
 
 renderer.isDrawStars = true;
 
 /* 初始化服务器列表配置 */
 try {
-    servers = JSON.parse(localStorage.getItem('servers'));
+    appState.servers = JSON.parse(localStorage.getItem('servers'));
 } catch (error) {
     console.error('Error reading servers from LocalStorage', error);
 }
 
-if (!servers) {
-    servers = defaultServers;
+if (!appState.servers) {
+    appState.servers = defaultServers;
 }
 
-function saveServersToLocalStorage(servers) {
+function saveServersToLocalStorage() {
     try {
-        localStorage.setItem('servers', JSON.stringify(servers));
+        localStorage.setItem('servers', JSON.stringify(appState.servers));
     } catch (error) {
         console.error('Error saving servers to LocalStorage', error);
     }
@@ -143,11 +144,8 @@ const keyManager = new KeyManager(Array.from(document.querySelectorAll('#keybind
 function initSettings() {
     const cached = loadSettings();
     updateControls(cached);
-    if (cached !== null) { // 如果有缓存配置
-        return;
-    }
+    if (cached !== null) return;
 
-    // 生成默认配置
     const defaults = {
         showNames: true,
         showMass: true,
@@ -160,17 +158,15 @@ function initSettings() {
         showCellBorder: true,
         autoZoom: false
     };
-    saveSettings(defaults); // 保存默认配置到缓存中
+    saveSettings(defaults);
     updateControls(defaults);
 }
 initSettings();
 status.processSettingSuccess();
 
-document.addEventListener('contextmenu', function (e) {
+document.addEventListener('contextmenu', e => {
     e.preventDefault();
 });
-
-/* stars */
 
 /* 阻止某些案件行为 */
 window.addEventListener('wheel', function (e) {
@@ -197,37 +193,37 @@ renderServerList();
 // currentServer.ip = servers[0].ip;
 
 function addServer(name, ip) {
-    servers.push({
+    appState.servers.push({
         name: name,
         ip: ip
     });
-    saveServersToLocalStorage(servers);
+    saveServersToLocalStorage(appState.servers);
     renderServerList();
 }
 
 function editServer(index, name, ip) {
-    servers[index] = {
+    appState.servers[index] = {
         name: name,
         ip: ip
     };
-    saveServersToLocalStorage(servers);
+    saveServersToLocalStorage(appState.servers);
     renderServerList();
 }
 
 function deleteServer(index) {
-    var deletedServer = servers[index];
+    var deletedServer = appState.servers[index];
 
-    servers.splice(index, 1);
+    appState.servers.splice(index, 1);
 
     // 如果删除的是当前服务器，更新currentServer
     if (deletedServer.ip === currentServer.ip && deletedServer.name === currentServer.name) {
-        if (servers.length > 0) {
-            currentServer = servers[0]; // 更新为列表中的第一个服务器
+        if (appState.servers.length > 0) {
+            currentServer = appState.servers[0]; // 更新为列表中的第一个服务器
         } else {
             currentServer = null; // 如果列表为空，则设为null
         }
     }
-    saveServersToLocalStorage(servers);
+    saveServersToLocalStorage(appState.servers);
 
     renderServerList();
 }
@@ -237,14 +233,14 @@ function renderServerList() {
     serverList.innerHTML = '';
 
     // 生成 li 元素
-    for (let i = 0; i < servers.length; i++) {
+    for (let i = 0; i < appState.servers.length; i++) {
         let li = document.createElement('li');
-        li.textContent = servers[i].name;
-        li.setAttribute('data-ip', servers[i].ip);
+        li.textContent = appState.servers[i].name;
+        li.setAttribute('data-ip', appState.servers[i].ip);
         li.setAttribute('data-index', i);
 
         // 如果 currentServer 对应当前的 li 元素，选中它
-        if (currentServer && servers[i].ip === currentServer.ip && servers[i].name === currentServer.name) {
+        if (currentServer && appState.servers[i].ip === currentServer.ip && appState.servers[i].name === currentServer.name) {
             li.classList.add('selected');
         }
 
@@ -253,7 +249,7 @@ function renderServerList() {
 
     // 如果 currentServer 是空的或未定义，选择第一个
     if (!currentServer && serverList.children.length > 0) {
-        currentServer = servers[0]; // 更新 currentServer
+        currentServer = appState.servers[0]; // 更新 currentServer
         serverList.children[0].classList.add('selected');
     }
 
@@ -268,7 +264,7 @@ function addServerListClickHandlers() {
     items.forEach(item => {
         item.addEventListener('click', () => {
             // 更新 currentServer 的引用，而不是它的属性
-            currentServer = servers[item.dataset.index];
+            currentServer = appState.servers[item.dataset.index];
 
             // 先删除其他的 selected  
             items.forEach(item => {
@@ -330,8 +326,8 @@ document.getElementById('add-server').addEventListener('click', function (e) {
 document.getElementById('edit-server').addEventListener('click', function (e) {
     if (targetServer) {
         var index = Number(targetServer.getAttribute('data-index'));
-        var serverName = window.prompt('请输入新的服务器名称', servers[index].name);
-        var serverAddress = window.prompt('请输入新的服务器地址', servers[index].ip);
+        var serverName = window.prompt('请输入新的服务器名称', appState.servers[index].name);
+        var serverAddress = window.prompt('请输入新的服务器地址', appState.servers[index].ip);
         if (serverName && serverAddress) {
             editServer(index, serverName, serverAddress);
         }
@@ -344,7 +340,7 @@ document.getElementById('edit-server').addEventListener('click', function (e) {
 document.getElementById('delete-server').addEventListener('click', function (e) {
     if (targetServer) {
         var index = Number(targetServer.getAttribute('data-index'));
-        var confirmDelete = window.confirm('您确定要删除服务器 ' + servers[index].name + ' 吗？');
+        var confirmDelete = window.confirm('您确定要删除服务器 ' + appState.servers[index].name + ' 吗？');
         if (confirmDelete) {
             deleteServer(index);
         }
@@ -413,9 +409,12 @@ document.getElementById('watch-button').addEventListener('click', function () {
 });
 
 /* 皮肤预览框事件 */
-var skinInput = document.querySelector('#skin');
-var skinPreview = document.querySelector('.skin-preview');
-var presentSkin;
+let skinInput = document.querySelector('#skin');
+let skinPreview = document.querySelector('.skin-preview');
+let skinContainer = document.querySelector('#skin-container');
+let isTransitioning = false;
+let presentSkin;
+let skins = null;
 
 // 当输入框失去焦点时...
 skinInput.addEventListener('blur', function () {
@@ -426,12 +425,20 @@ skinInput.addEventListener('blur', function () {
     skinPreview.style.backgroundImage = 'url(' + skinUrl + ')';
 });
 
-let isTransitioning = false;
+let observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            let img = entry.target;
+            img.src = img.dataset.src;
+            observer.unobserve(img);
+        }
+    });
+}, {
+    root: skinContainer
+});
 
 skinPreview.addEventListener('click', function (event) {
     event.stopPropagation();
-
-    const skinContainer = document.querySelector('#skin-container');
 
     skinContainer.style.transition = 'none';
     skinContainer.offsetHeight;
@@ -440,42 +447,51 @@ skinPreview.addEventListener('click', function (event) {
     if (skinContainer.style.transform === 'scale(1)') {
         skinContainer.style.transform = 'scale(0)';
     } else {
-        fetch(`${serverIp}/skins.json`)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(skins => {
-                skinContainer.innerHTML = '';
+        if (skins) {
+            populateSkins(skins);
+        } else {
+            fetch(`${serverIp}/skins.json`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(skinsData => {
+                    skins = skinsData;
+                    populateSkins(skins);
+                })
+                .catch(error => console.error('Error fetching skins:', error));
+        }
+    }
+});
 
-                skins.forEach(skin => {
-                    const img = document.createElement('img');
-                    img.src = `${serverIp}/skins/${skin.name}.png`;
-                    skinContainer.appendChild(img);
+function populateSkins(skins) {
+    skinContainer.innerHTML = '';
+    skins.forEach(skin => {
+        const img = document.createElement('img');
+        img.dataset.src = `./skins-webp/${skin.name}.webp`;
+        skinContainer.appendChild(img);
+        observer.observe(img);
+    });
+    skinContainer.style.display = 'grid';
+    setTimeout(() => {
+        skinContainer.style.transform = 'scale(1)';
+        isTransitioning = false;
+    }, 20);
+}
 
-                    img.addEventListener('click', function () {
-                        if (isTransitioning) return;
-                        skinUrl = skinInput.value = this.src;
-                        skinPreview.style.backgroundImage = 'url(' + skinUrl + ')';
+skinContainer.addEventListener('click', function (event) {
+    const img = event.target;
+    if (img.tagName.toLowerCase() === 'img') {
+        if (isTransitioning) return;
+        skinUrl = skinInput.value = img.src;
+        skinPreview.style.backgroundImage = 'url(' + skinUrl + ')';
 
-                        isTransitioning = true;
-                        skinContainer.style.transform = 'scale(0)';
-                    });
-                });
-
-                skinContainer.style.display = 'grid';
-                setTimeout(() => {
-                    skinContainer.style.transform = 'scale(1)';
-                    isTransitioning = false;
-                }, 20);
-            })
-            .catch(error => console.error('Error fetching skins:', error));
+        isTransitioning = true;
+        skinContainer.style.transform = 'scale(0)';
     }
 });
 
 window.addEventListener('click', function (e) {
-    const skinContainer = document.querySelector('#skin-container');
-
     if (e.target !== skinContainer && !skinContainer.contains(e.target)) {
         if (isTransitioning) return;
 
@@ -484,14 +500,18 @@ window.addEventListener('click', function (e) {
     }
 });
 
-document.querySelector('#skin-container').addEventListener('transitionend', function () {
+skinContainer.addEventListener('transitionend', function () {
     if (this.style.transform === 'scale(0)') {
         this.style.display = 'none';
+        // 清空 skinContainer
+        while (this.firstChild) {
+            observer.unobserve(this.firstChild);
+            this.removeChild(this.firstChild);
+        }
     }
 
     isTransitioning = false;
 });
-
 
 /* 关于菜单 */
 var modal = document.getElementById('about-modal');
@@ -711,7 +731,6 @@ saveButton.addEventListener('click', () => {
 });
 
 window.addEventListener('keydown', (event) => {
-    // 如果有活动的按钮，更新按钮文本并存储按键配置
     if (activeButton) {
         activeButton.textContent = event.key.toUpperCase();
         activeButton.classList.remove('glow');
@@ -722,33 +741,41 @@ window.addEventListener('keydown', (event) => {
         }
         keyManager.setKeybind(keybindId, event.key);
         console.log(keyManager.getAllKeybinds());
-        // 清除当前活动的按钮
         activeButton = null;
     }
 });
 
-/* 自动重连服务器 */
-let isConnected = false; //是否连接成功，需要后期进行修改
-tryConnect();
-//address use currentServer.ip
+let isConnected = false;
+let isConnecting = false;
+let intervalId;
+
+// 尝试连接服务器
 async function tryConnect() {
-    if (!client.isConnected) {
+    let wasConnected = client.isConnected;
+    if (!wasConnected && !isConnecting) {
+        isConnecting = true;
         try {
             await client.connect(currentServer.ip);
-            if (client.isConnected) {
-                isConnected = true;
-                status.connectionSuccess(currentServer.name); // 连接成功后调用
+            isConnected = client.isConnected;
+            if (isConnected) {
+                status.connectionSuccess(currentServer.name);
             } else {
-                isConnected = false;
-                status.connectionError(currentServer.name); // 连接失败后调用
+                status.connectionError(currentServer.name);
             }
         } catch (error) {
             isConnected = false;
-            status.connectionError(currentServer.name); // 连接失败后调用
+            status.connectionError(currentServer.name);
+        } finally {
+            // 如果连接未成功，清理资源
+            if (!client.isConnected && wasConnected) {
+                await tryClose();
+            }
+            isConnecting = false; // 连接尝试结束，无论成功与否
         }
     }
 }
 
+// 尝试关闭连接
 async function tryClose() {
     if (client.isConnected) {
         try {
@@ -761,4 +788,17 @@ async function tryClose() {
     }
 }
 
-setInterval(tryConnect, 8500);
+// 启动定时连接操作
+function startConnecting() {
+    intervalId = setInterval(tryConnect, 8500);
+}
+
+// 停止定时连接操作
+function stopConnecting() {
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
+}
+
+// 启动连接
+startConnecting();
