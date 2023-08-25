@@ -1,9 +1,17 @@
+import Cell from './cell.js';
+import Grid from './Grid.js';
+import Map from './map.js';
 export class Draw {
     constructor(app) {
         this.app = app;
+        this.routerId = -1;
         this.stars = [];
         this._isDrawStars = true;
         this.ticker = null;
+        this.grid = null;
+
+        this.map = new Map(50, 50, 500, 500, this.grid);
+        this.grid = new Grid(this.map, 5, 5);
     }
 
     drawCircle(x, y, radius, color = 0xFFFFFF) {
@@ -15,6 +23,8 @@ export class Draw {
         circle.y = y;
         this.app.stage.addChild(circle);
     }
+
+    
 
     addStars() {
         const starAmount = 100;

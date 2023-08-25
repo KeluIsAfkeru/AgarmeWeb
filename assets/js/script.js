@@ -3,6 +3,7 @@ import LeaderBoard from './leaderBoard.js';
 import KeyManager from './keyManager.js';
 import WebSocketClient from './webSocket.js';
 import Cell from './cell.js';
+import Grid from './Grid.js';
 import Info from './info.js';
 import {
     Draw
@@ -17,14 +18,15 @@ import {
 
 const status = new Info();
 const serverIp = "http://127.0.0.1:5500";
+let grid;
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
-        ip: 'ws://localhost:8080/Chat'
+        ip: 'ws://localhost:8080/Game'
     },
     {
         name: '本地2',
-        ip: 'ws://localhost:6666/'
+        ip: 'ws://localhost:4513/Game'
     },
     {
         name: '本地3',
@@ -47,6 +49,7 @@ const app = new PIXI.Application({
     height: window.innerHeight,
     transparent: true,
 });
+// const app = new PIXI.Application({ antialias: true, /* 其他配置项 */ }); 抗锯齿
 const renderer = new Draw(app);
 renderer._isDrawStars = true;
 const client = new WebSocketClient(renderer);
@@ -106,9 +109,6 @@ const handleResize = () => {
 
         appState.lastWidth = newWidth;
         appState.lastHeight = newHeight;
-        console.log(window.innerWidth)
-        console.log(canvas.width)
-        console.log(texture.width)
     });
 };
 
@@ -747,7 +747,7 @@ window.addEventListener('keydown', (event) => {
             keybindId = keybindId.substring('keybind-'.length);
         }
 
-        keyManager.setKeybind(keybindId, keyName); 
+        keyManager.setKeybind(keybindId, keyName);
 
         console.log(keyManager.getAllKeybinds());
         activeButton = null;
@@ -811,3 +811,12 @@ function stopConnecting() {
 
 // 启动连接
 startConnecting();
+
+/* 绘制 */
+let mapElement = document.getElementById('map');
+mapElement.style.width = `${renderer.map.Width}px`;
+mapElement.style.height = `$renderer.map.Height}px`;
+mapElement.style.left = `${renderer.map.X}px`;
+mapElement.style.top = `${renderer.map.Y}px`;
+grid = new Grid(renderer.map);
+grid.drawGrid();

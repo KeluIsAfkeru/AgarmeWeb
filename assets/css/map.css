@@ -1,0 +1,42 @@
+#map {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 100;
+    left: 100;
+    border: 2px solid #537895;
+    box-shadow: 0 0 10px 5px #add8e6;
+    /* 淡蓝色的光 */
+    z-index: -10;
+    animation: glowMap 2s infinite;
+}
+
+@keyframes glowMap {
+    0% {
+        box-shadow: 0 0 5px 1px rgba(173, 216, 230, 0.8);
+    }
+
+    50% {
+        box-shadow: 0 0 10px 5px rgba(173, 216, 230, 0.5), 0 0 15px 5px rgba(173, 216, 230, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 10px 1px rgba(173, 216, 230, 0.8);
+    }
+}
+
+.grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px 5px #596b71;
+    z-index: -10;
+}
+
+#grid line {
+    stroke: rgb(101, 113, 173, 100);
+    stroke-width: 1;
+}

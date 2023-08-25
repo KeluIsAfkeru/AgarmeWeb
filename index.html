@@ -7,6 +7,7 @@
     <title>Agarme客户端</title>
     <link rel="icon" href="assets/img/favicon.png">
     <link rel="stylesheet" type="text/css" href="assets/css/basic.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/map.css">
     <link rel="stylesheet" type="text/css" href="assets/css/canvas.css">
     <link rel="stylesheet" type="text/css" href="assets/css/info.css">
     <link rel="stylesheet" type="text/css" href="assets/css/setting.css">
@@ -19,6 +20,7 @@
         rel="stylesheet">
     <script src="assets/components/jquery.min.js"></script>
     <script src="assets/components/pixi.min.js"></script>
+    <script src="assets/components/pixi-filters.js"></script>
     <script src="assets/components/msgpack.min.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
@@ -35,6 +37,19 @@
 </head>
 
 <body>
+    <svg style="height:0; width:0; position:absolute;">
+        <defs>
+            <filter id="glow">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                <feFlood flood-color="rgb(101, 113, 173)" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="colorBlur" />
+                <feMerge>
+                    <feMergeNode in="colorBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
     <div id="pixi-container"></div>
     <div id="message-container"></div>
     <div id="message-box"></div>
@@ -269,6 +284,10 @@
                 </p>
             </div>
         </div>
+    </div>
+    <div id="map">
+        <svg id="grid" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        </svg>
     </div>
 
 </body>
